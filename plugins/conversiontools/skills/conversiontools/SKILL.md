@@ -80,28 +80,39 @@ Parameters:
 
 ## How to Convert Files
 
-1. Look at the input file extension and the desired output format
-2. Call `conversiontools:convert_file` with `input_path` and `output_path` — the converter is auto-detected
-3. If auto-detection fails, use `conversiontools:find_converter` to look up the right converter, then pass it explicitly
+You must provide the file content — the server cannot read local paths. Choose the method based on file size. The response includes a `download_url` — download the result with curl.
 
-Example — convert a PDF to Excel:
+### Small files (up to 5MB)
+
+1. Base64-encode the file
+2. Call `conversiontools:convert_file` with `file_content`, `input_path`, and `output_path`
+3. Download the result from the returned `download_url`
+
+```bash
+# 1. Encode
+base64_content=$(base64 -w 0 data.json)
+```
 
 ```
-conversiontools:convert_file({
-  input_path: "report.pdf",
-  output_path: "report.xlsx"
-})
-```
-
-Example — convert with explicit converter:
-
-```
+# 2. Convert
 conversiontools:convert_file({
   input_path: "data.json",
   output_path: "data.csv",
-  converter: "convert.json_to_csv"
+  file_content: "<base64_content>"
 })
 ```
+
+```bash
+# 3. Download
+curl -sL "<download_url>" -o data.csv
+```
+
+### Large files (over 5MB)
+
+1. Call `conversiontools:request_upload_url` with the filename to get a signed upload URL and `file_id`
+2. Upload the file to the returned URL with `curl -X PUT`
+3. Call `conversiontools:convert_file` with the `file_id` instead of `file_content`
+4. Download the result from the returned `download_url`
 
 ## Supported Conversions
 
