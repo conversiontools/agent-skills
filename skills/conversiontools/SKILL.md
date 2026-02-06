@@ -14,23 +14,15 @@ Convert files between 140+ formats directly from your agent using the Conversion
 
 ## Setup
 
-This skill automatically connects to the ConversionTools MCP server when the plugin is enabled. No manual MCP configuration required.
+If the ConversionTools MCP server is already connected, skip to **Available Tools**.
 
-### Plugin Install (Recommended)
-
-```bash
-claude plugin install conversiontools
-```
-
-Restart Claude Code after installation. The MCP server connection is configured automatically.
-
-### Manual MCP Setup (Without Plugin)
-
-If you prefer to configure the MCP server manually:
+If the MCP server is not connected, add it:
 
 ```bash
 claude mcp add --transport http conversiontools https://mcp.conversiontools.io/mcp
 ```
+
+Restart Claude Code after adding the server. MCP server changes require a restart to take effect.
 
 On first use, you will be prompted to authenticate via OAuth in your browser. Free accounts get 100 conversions per month (10 per day). Paid plans available at [conversiontools.io/pricing](https://conversiontools.io/pricing).
 

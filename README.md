@@ -2,20 +2,36 @@
 
 **[Conversion Tools](https://conversiontools.io) agent skills** — convert 140+ file formats directly from AI agents.
 
-### Installation
+## Installation
 
-- **Using the `skills` CLI**: `npx skills add conversiontools/agent-skills --skill conversiontools`
-- **As a Plugin Marketplace (Claude Code / Cowork)**
-  - `claude plugin marketplace add conversiontools/agent-skills`
-  - `claude plugin install conversiontools@conversiontools-skills`
+### Claude Code Plugin (Recommended)
+
+Installs both the skill and the MCP server connection automatically:
+
+```bash
+claude plugin marketplace add conversiontools/agent-skills
+claude plugin install conversiontools@conversiontools-skills
+```
+
+Restart Claude Code after installation. The MCP server connects automatically.
+
+### Skills CLI (Other Agents)
+
+Installs the skill instructions for Cursor, Gemini CLI, Amp, Codex, and other agents:
+
+```bash
+npx skills add conversiontools/agent-skills --skill conversiontools
+```
+
+MCP server must be configured separately for non-plugin agents. Connect to: `https://mcp.conversiontools.io/mcp`
 
 ---
 
 | Skill | Description |
 |-------|-------------|
 | [conversiontools](https://github.com/conversiontools/agent-skills/tree/main/skills/conversiontools) | Convert files between 140+ formats using the ConversionTools MCP server. Supports documents, data formats, images, audio, video, e-books, OCR, AI extraction, subtitles, and website screenshots. |
-| | ```npx skills add conversiontools/agent-skills --skill conversiontools``` |
 | | ```claude plugin install conversiontools@conversiontools-skills``` |
+| | ```npx skills add conversiontools/agent-skills --skill conversiontools``` |
 
 ---
 
