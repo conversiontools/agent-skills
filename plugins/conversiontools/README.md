@@ -4,7 +4,7 @@ Convert files between 140+ formats using the ConversionTools MCP server. Use whe
 
 ## Installation
 
-### Claude Code / Cowork
+### Claude Code
 
 ```bash
 claude plugin marketplace add conversiontools/agent-skills

@@ -1,7 +1,7 @@
 ---
 name: conversiontools
 description: Convert files between 140+ formats using the ConversionTools MCP server. Use when the user needs to convert documents (Word, PDF, Excel, PowerPoint), data formats (JSON, CSV, XML, YAML), images (PNG, JPG, WebP, AVIF, HEIC, SVG), audio (MP3, WAV, FLAC), video (MOV, MKV, AVI to MP4), e-books (EPUB, MOBI), OCR text extraction, AI-powered data extraction from PDFs and images, subtitle conversion, or website screenshots.
-compatibility: Requires connection to the ConversionTools MCP server. Works with Claude Code, Claude Desktop, and any MCP-compatible agent.
+compatibility: Requires connection to the ConversionTools MCP server. Works with Claude Code, Claude Desktop, and any MCP-compatible agent. Claude.ai web/Cowork mode requires the server to implement OAuth 2.0 Protected Resource Metadata (RFC 9728).
 metadata:
   author: conversiontools
   version: "1.0"
