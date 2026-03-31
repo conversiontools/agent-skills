@@ -1,10 +1,10 @@
 ---
 name: conversiontools
-description: Convert files between 140+ formats using the ConversionTools MCP server. Use when the user needs to convert documents (Word, PDF, Excel, PowerPoint), data formats (JSON, CSV, XML, YAML), images (PNG, JPG, WebP, AVIF, HEIC, SVG), audio (MP3, WAV, FLAC), video (MOV, MKV, AVI to MP4), e-books (EPUB, MOBI), OCR text extraction, AI-powered data extraction from PDFs and images, subtitle conversion, or website screenshots.
+description: Convert files between 140+ formats using the ConversionTools MCP server. Use when the user needs to convert documents (Word, PDF, Excel, PowerPoint), data formats (JSON, CSV, XML, YAML, Parquet), images (PNG, JPG, WebP, AVIF, HEIC, JXL, SVG), audio (MP3, WAV, FLAC), video (MOV, MKV, AVI to MP4), e-books (EPUB, MOBI, AZW), OCR text extraction, AI-powered data extraction, AI text-to-speech (TTS), AI speech-to-text transcription (STT), subtitle conversion (SRT, VTT, ASS), or website screenshots.
 compatibility: Requires connection to the ConversionTools MCP server. Works with Claude Code, Claude Desktop, and any MCP-compatible agent.
 metadata:
   author: conversiontools
-  version: "1.0"
+  version: "1.1"
   website: https://conversiontools.io
 ---
 
@@ -55,6 +55,8 @@ Flow for large files:
 3. Call `conversiontools:convert_file` with the returned `file_id`
 
 ### `conversiontools:list_converters` — Browse available converters
+
+Use this to discover what conversions are currently supported. New converters are added regularly — always check here for the latest.
 
 Parameters:
 - `category` (optional): `documents`, `data`, `images`, `pdf`, `audio`, `video`, `ebook`, `ocr`, `ai`, `subtitles`, `web`
@@ -114,69 +116,47 @@ curl -sL "<download_url>" -o data.csv
 3. Call `conversiontools:convert_file` with the `file_id` instead of `file_content`
 4. Download the result from the returned `download_url`
 
-## Supported Conversions
+## Supported Categories
 
-### Documents
-- Word (docx, doc) → PDF, HTML, Text
-- PowerPoint (pptx, ppt) → PDF
-- Excel (xlsx, xls) → PDF, CSV, HTML, JSON, XML
-- Markdown → PDF, HTML, EPUB
+The following categories are available. Use `conversiontools:list_converters` with a `category`, `input_format`, or `output_format` filter to discover specific converters — new formats are added regularly.
 
-### PDF
-- PDF → Word, Excel, CSV, Text, HTML, JPG, PNG, EPUB
-- JPG/PNG → PDF
+- **Documents** — Word (DOCX, DOC), PowerPoint (PPTX, PPT), Excel (XLSX, XLS), Markdown, ODS, HTML, Text, LaTeX
+- **PDF** — Convert to/from Word, Excel, CSV, Text, HTML, Images (JPG, PNG, SVG, TIFF), EPUB
+- **Data Formats** — JSON, CSV, XML, YAML, Parquet, JSONL, BSON, Excel — with validators and formatters
+- **Images** — PNG, JPG, WebP, AVIF, HEIC, JXL (JPEG XL), SVG, BMP, TIFF, GIF, PGM, PPM — plus EXIF removal
+- **Audio** — MP3, WAV, FLAC — plus AI text-to-speech (Text/DOCX/PDF/Markdown to MP3) and AI speech-to-text transcription (MP3/WAV/FLAC to Text)
+- **Video** — MP4, MOV, MKV, AVI — plus audio extraction (MP4 to MP3)
+- **E-books** — EPUB, MOBI, AZW, AZW3, FB2, FBZ, PDF
+- **OCR** — Extract text from scanned PDFs and images (JPG, PNG) — output as Text or searchable PDF
+- **AI-Powered** — Smart extraction from PDFs and images to JSON, CSV, Excel, Markdown — plus AI subtitle translation, text-to-speech (TTS), and speech-to-text (STT)
+- **Subtitles** — SRT, VTT, ASS, CSV, Excel, Text — bidirectional conversions
+- **Web** — Website screenshots (URL to PDF, JPG, PNG), HTML to images/Word, HTML table extraction
 
-### Data Formats
-- JSON ↔ CSV, Excel, XML, YAML
-- CSV ↔ JSON, XML, Excel
-- XML ↔ JSON, CSV, Excel
-- YAML → JSON
+## Discovering Converters
 
-### Images
-- PNG ↔ JPG, WebP, AVIF, SVG
-- JPG ↔ PNG, WebP, AVIF
-- WebP ↔ PNG, JPG
-- AVIF ↔ PNG, JPG
-- HEIC → JPG, PNG
-- SVG → PNG, JPG
-- Remove EXIF metadata
+When unsure if a specific conversion is supported, use the discovery tools rather than guessing:
 
-### Audio
-- WAV ↔ MP3
-- FLAC → MP3, WAV
+```
+# Check what PDF can convert to
+conversiontools:list_converters({ input_format: "pdf" })
 
-### Video
-- MOV, MKV, AVI → MP4
-- MP4 → MP3 (extract audio)
+# Check what can produce Parquet
+conversiontools:list_converters({ output_format: "parquet" })
 
-### E-books
-- EPUB ↔ MOBI
-- EPUB, MOBI → PDF
-- Markdown → EPUB
+# Browse all data converters
+conversiontools:list_converters({ category: "data" })
 
-### OCR (Text Recognition)
-- PNG, JPG → Text (OCR)
-- Scanned PDF → Text (OCR)
-- PNG, JPG → Searchable PDF (OCR)
+# Find the right converter for a specific pair
+conversiontools:find_converter({ input_format: "xlsx", output_format: "parquet" })
 
-### AI-Powered
-- PDF → JSON, CSV, Excel, Markdown (AI extraction)
-- Images → JSON (AI extraction)
-- Subtitles → Translated subtitles (AI)
-
-### Subtitles
-- SRT ↔ VTT
-- SRT → CSV, Text
-
-### Web
-- Website URL → PDF, JPG, PNG (screenshot)
-- HTML → JPG, PNG
-- HTML tables → CSV
+# Get full details and options for a converter
+conversiontools:get_converter_info({ converter: "convert.csv_to_parquet" })
+```
 
 ## Tips
 
 - Auto-detection works well — just provide file paths with correct extensions and skip the `converter` parameter
-- Use `conversiontools:list_converters` with filters when unsure what's available: `conversiontools:list_converters({ input_format: "pdf" })` shows all PDF output options
+- Use `conversiontools:list_converters` with filters when unsure what's available
 - AI converters (`convert.ai_pdf_to_json`, etc.) use AI to intelligently extract structured data from complex documents — use these when standard converters produce poor results
 - OCR converters are for scanned documents and images containing text — use when the source is an image or non-searchable PDF
 - For batch conversions, upload a ZIP, 7z, XZ, or RAR archive containing all files — they will all be converted and returned as a `.result.zip` file. Alternatively, call `conversiontools:convert_file` once per file.
