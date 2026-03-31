@@ -30,8 +30,14 @@ MCP server must be configured separately for non-plugin agents. Connect to: `htt
 | Skill | Description |
 |-------|-------------|
 | [conversiontools](https://github.com/conversiontools/agent-skills/tree/main/skills/conversiontools) | Convert files between 140+ formats using the ConversionTools MCP server. Supports documents, data formats (incl. Parquet), images (incl. JXL), audio, video, e-books, OCR, AI extraction, text-to-speech (TTS), speech-to-text (STT), subtitles (SRT, VTT, ASS), and website screenshots. |
-| | ```claude plugin install conversiontools@conversiontools-skills``` |
-| | ```npx skills add conversiontools/agent-skills --skill conversiontools``` |
+
+```bash
+claude plugin install conversiontools@conversiontools-skills
+```
+
+```bash
+npx skills add conversiontools/agent-skills --skill conversiontools
+```
 
 ---
 
