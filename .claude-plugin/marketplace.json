@@ -9,7 +9,7 @@
       "name": "conversiontools",
       "source": "./plugins/conversiontools",
       "description": "Convert files between 140+ formats using ConversionTools. Two surfaces - the ctio CLI (preferred when shell access is available) and the MCP server (zero-install). Supports documents, data formats (incl. Parquet), images (incl. JXL), audio, video, e-books, OCR, AI extraction, text-to-speech (TTS), speech-to-text (STT), subtitles (SRT, VTT, ASS), and website screenshots.",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "category": "integrations"
     }
   ]
