@@ -1,7 +1,5 @@
 {
-  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "conversiontools-skills",
-  "description": "Convert 140+ file formats directly from AI agents using ConversionTools",
   "owner": {
     "name": "Conversion Tools",
     "url": "https://conversiontools.io"
