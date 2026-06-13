@@ -1,27 +1,27 @@
 ---
-name: conversiontools
-description: Convert files between 140+ formats using ConversionTools. Two surfaces are available - the `ctio` CLI (preferred when shell access is available) and the ConversionTools MCP server (zero-install, works everywhere). Covers documents (Word, PDF, Excel, PowerPoint), data formats (JSON, CSV, XML, YAML, Parquet), images (PNG, JPG, WebP, AVIF, HEIC, JXL, SVG), audio (MP3, WAV, FLAC), video (MOV, MKV, AVI to MP4), e-books (EPUB, MOBI, AZW), OCR text extraction, AI-powered data extraction, AI text-to-speech (TTS), AI speech-to-text transcription (STT), subtitle conversion (SRT, VTT, ASS), and website screenshots.
-compatibility: Works with Claude Code (via ctio binary or MCP server), Claude Desktop (MCP), and any MCP-compatible agent.
+name: convert
+description: Convert files between 140+ formats using Conversion Tools. Two surfaces are available - the `ctio` CLI (preferred when shell access is available) and the hosted Conversion Tools MCP server (zero-install, works everywhere). Covers documents (Word, PDF, Excel, PowerPoint), data formats (JSON, CSV, XML, YAML, Parquet), images (PNG, JPG, WebP, AVIF, HEIC, JXL, SVG), audio (MP3, WAV, FLAC), video (MOV, MKV, AVI to MP4), e-books (EPUB, MOBI, AZW), OCR text extraction, AI-powered data extraction, AI text-to-speech (TTS), AI speech-to-text transcription (STT), subtitle conversion (SRT, VTT, ASS), and website screenshots.
+compatibility: Works with any agent that has shell access (via the ctio CLI) or MCP support (via the hosted MCP server) - including Claude Code, Grok Build, Cursor, OpenAI Codex, and Claude Desktop.
 metadata:
   author: conversiontools
-  version: "1.2"
+  version: "1.3"
   website: https://conversiontools.io
 ---
 
-# ConversionTools File Conversion
+# Conversion Tools File Conversion
 
 Convert files between 140+ formats directly from your agent. Two surfaces are available: the **ctio CLI** (a single binary, preferred when the agent has shell access) and the **MCP server** (zero-install, works in any MCP-compatible client).
 
 ## Choosing a surface
 
-**Prefer `ctio` when the agent can run shell commands** (Claude Code, terminal agents). Reasons:
+**Prefer `ctio` when the agent can run shell commands** (terminal coding agents like Claude Code, Grok Build, Cursor, and Codex). Reasons:
 
 - Composable via Unix pipes (chain with `jq`, `grep`, `awk`, or feed into another `ctio` call)
 - Streams stdin/stdout directly - no base64 encoding, no 5 MB size threshold, no temp files
 - Handles arbitrarily large files (chunked streaming upload, no in-memory buffering)
 - Faster on small files (no base64 overhead, snappy 500 ms default polling)
 
-**Use the MCP server** when ctio is not installed, when running in a web-only environment (Claude Desktop, Claude.ai), or when the user explicitly asks for MCP.
+**Use the MCP server** when ctio is not installed, when running in a web-based assistant, or when the user explicitly asks for MCP.
 
 Quick capability check:
 
@@ -100,15 +100,15 @@ The `-t` flag accepts the same conversion type names as the MCP `convert_file` t
 
 ## MCP Server (fallback path)
 
-If `ctio` is not available, use the ConversionTools MCP server. If the MCP server is already connected, skip to **Available Tools**.
+If `ctio` is not available, use the hosted Conversion Tools MCP server. If the MCP server is already connected, skip to **Available Tools**.
 
-If the MCP server is not connected, add it:
+If the MCP server is not connected, add it to your agent. The server endpoint is:
 
-```bash
-claude mcp add --transport http conversiontools https://mcp.conversiontools.io/mcp
+```
+https://mcp.conversiontools.io/mcp
 ```
 
-Restart Claude Code after adding the server. MCP server changes require a restart to take effect.
+Per-agent setup instructions (Claude Code, Grok Build, Cursor, OpenAI Codex, and any MCP client) are at <https://conversiontools.io/docs/agents>. Restart your agent after adding the server - MCP server changes require a restart to take effect.
 
 On first use, you will be prompted to authenticate via OAuth in your browser. Free accounts get 100 conversions per month (10 per day). Paid plans available at [conversiontools.io/pricing](https://conversiontools.io/pricing).
 
