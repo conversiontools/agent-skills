@@ -2,13 +2,13 @@
 
 **[Conversion Tools](https://conversiontools.io) agent skills** - convert 140+ file formats directly from AI agents.
 
-Two surfaces, same backend: the **`ctio` CLI** for terminal-first agents (Claude Code, Cursor), and the **MCP server** for zero-install / web-based agents. The skill teaches Claude to pick the right one.
+Two surfaces, same backend: the **`ctio` CLI** for terminal-first agents, and the hosted **MCP server** for zero-install / web-based agents. The skill teaches your agent to pick the right one.
+
+One repo, every agent. Full per-agent setup is at <https://conversiontools.io/docs/agents>.
 
 ## Installation
 
-### Claude Code Plugin (Recommended)
-
-Installs the skill (which knows about both `ctio` CLI and MCP) and the MCP server connection automatically:
+### Claude Code
 
 ```bash
 claude plugin marketplace add conversiontools/agent-skills
@@ -17,9 +17,29 @@ claude plugin install conversiontools@conversiontools-skills
 
 Restart Claude Code after installation. The MCP server connects automatically.
 
+### Cursor
+
+```bash
+/add-plugin conversiontools
+```
+
+Or add the repo as a plugin source, then install `conversiontools` from the plugins browser.
+
+### OpenAI Codex
+
+```bash
+codex plugin marketplace add conversiontools/agent-skills
+```
+
+Start Codex, open the plugins browser with `/plugins`, and install the `conversiontools` plugin.
+
+### Grok Build
+
+Once listed in the Grok marketplace, run `/marketplace` inside Grok Build and install `conversiontools`. In the meantime, add the MCP server with `grok mcp add conversiontools --url https://mcp.conversiontools.io/mcp`.
+
 ### ctio CLI (best for shell-driven workflows)
 
-Single-binary CLI, no Node/Bun runtime required. Pipes nicely with `jq`, handles arbitrarily large files via streaming, snappy 500 ms default polling.
+Single-binary CLI, no Node/Bun runtime required. Pipes nicely with `jq`, handles arbitrarily large files via streaming.
 
 **Windows (scoop):**
 
@@ -28,33 +48,21 @@ scoop bucket add conversiontools https://github.com/conversiontools/scoop-bucket
 scoop install ctio
 ```
 
-**macOS / Linux:** download from <https://github.com/conversiontools/ctio/releases> - one-line install commands for each platform in the [ctio docs](https://conversiontools.io/docs/ctio).
+**macOS / Linux:** download from <https://github.com/conversiontools/ctio/releases> - one-line install commands for each platform are in the [ctio docs](https://conversiontools.io/docs/ctio).
 
-### Skills CLI (Other Agents)
+### Any MCP client
 
-Installs the skill instructions for Cursor, Gemini CLI, Amp, Codex, and other agents:
+Connect to the hosted MCP server:
 
-```bash
-npx skills add conversiontools/agent-skills --skill conversiontools
 ```
-
-MCP server must be configured separately for non-plugin agents. Connect to: `https://mcp.conversiontools.io/mcp`
+https://mcp.conversiontools.io/mcp
+```
 
 ---
 
 | Skill | Description |
 |-------|-------------|
-| [conversiontools](https://github.com/conversiontools/agent-skills/tree/main/skills/conversiontools) | Convert files between 140+ formats using ConversionTools. Two surfaces - the `ctio` CLI (preferred when shell access is available) and the MCP server (zero-install). Supports documents, data formats (incl. Parquet), images (incl. JXL), audio, video, e-books, OCR, AI extraction, text-to-speech (TTS), speech-to-text (STT), subtitles (SRT, VTT, ASS), and website screenshots. |
-
-```bash
-claude plugin install conversiontools@conversiontools-skills
-```
-
-```bash
-npx skills add conversiontools/agent-skills --skill conversiontools
-```
-
----
+| [convert](https://github.com/conversiontools/agent-skills/tree/main/skills/convert) | Convert files between 140+ formats using Conversion Tools. Two surfaces - the `ctio` CLI (preferred when shell access is available) and the hosted MCP server (zero-install). Supports documents, data formats (incl. Parquet), images (incl. JXL), audio, video, e-books, OCR, AI extraction, text-to-speech (TTS), speech-to-text (STT), subtitles (SRT, VTT, ASS), and website screenshots. |
 
 ## Supported Conversions
 
@@ -76,6 +84,7 @@ For the MCP server, you'll be prompted to authenticate via OAuth in your browser
 
 ## Links
 
+- [All agent integrations](https://conversiontools.io/docs/agents)
 - [ctio CLI docs](https://conversiontools.io/docs/ctio)
 - [MCP server docs](https://conversiontools.io/docs/mcp)
 - [Pricing](https://conversiontools.io/pricing)
