@@ -14,7 +14,7 @@ Ask Gemini to convert a file and it will pick the right converter automatically:
 - "Extract the table from invoice.pdf to CSV"
 - "Transcribe meeting.mp3 to text"
 
-For files over 5 MB, the agent uses `request_upload_url` first, then `convert_file` with the returned `file_id`.
+For files up to 5 MB the agent passes the file base64-encoded as `file_content` - it reads the file directly and encodes it in-process, rather than relying on a shell base64 one-liner (some agent sandboxes block those as "command substitution"). For files over 5 MB it uses `request_upload_url` first, then `convert_file` with the returned `file_id`.
 
 ## More
 
