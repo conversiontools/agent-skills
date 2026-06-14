@@ -37,6 +37,14 @@ Start Codex, open the plugins browser with `/plugins`, and install the `conversi
 
 Once listed in the Grok marketplace, run `/marketplace` inside Grok Build and install `conversiontools`. In the meantime, add the MCP server with `grok mcp add conversiontools --url https://mcp.conversiontools.io/mcp`.
 
+### Gemini CLI
+
+```bash
+gemini extensions install https://github.com/conversiontools/agent-skills
+```
+
+Update later with `gemini extensions update conversiontools`. (The standalone [conversiontools/gemini-extension](https://github.com/conversiontools/gemini-extension) repo also works and stays current.)
+
 ### ctio CLI (best for shell-driven workflows)
 
 Single-binary CLI, no Node/Bun runtime required. Pipes nicely with `jq`, handles arbitrarily large files via streaming.

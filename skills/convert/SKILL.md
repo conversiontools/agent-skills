@@ -4,7 +4,7 @@ description: Convert files between 140+ formats using Conversion Tools. Two surf
 compatibility: Works with any agent that has shell access (via the ctio CLI) or MCP support (via the hosted MCP server) - including Claude Code, Grok Build, Cursor, OpenAI Codex, and Claude Desktop.
 metadata:
   author: conversiontools
-  version: "1.3"
+  version: "1.4"
   website: https://conversiontools.io
 ---
 
