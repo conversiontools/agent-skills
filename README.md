@@ -1,6 +1,6 @@
 # `conversiontools/agent-skills`
 
-**[Conversion Tools](https://conversiontools.io) agent skills** - convert 140+ file formats directly from AI agents.
+**[Conversion Tools](https://conversiontools.io) agent skills** - convert 140+ file formats directly from AI agents, or build a custom converter from a plain-language description when none fits.
 
 Two surfaces, same backend: the **`ctio` CLI** for terminal-first agents, and the hosted **MCP server** for zero-install / web-based agents. The skill teaches your agent to pick the right one.
 
@@ -70,7 +70,7 @@ https://mcp.conversiontools.io/mcp
 
 | Skill | Description |
 |-------|-------------|
-| [convert](https://github.com/conversiontools/agent-skills/tree/main/skills/convert) | Convert files between 140+ formats using Conversion Tools. Two surfaces - the `ctio` CLI (preferred when shell access is available) and the hosted MCP server (zero-install). Supports documents, data formats (incl. Parquet), images (incl. JXL), audio, video, e-books, OCR, AI extraction, text-to-speech (TTS), speech-to-text (STT), subtitles (SRT, VTT, ASS), and website screenshots. |
+| [convert](https://github.com/conversiontools/agent-skills/tree/main/skills/convert) | Convert files between 140+ formats using Conversion Tools. Two surfaces - the `ctio` CLI (preferred when shell access is available) and the hosted MCP server (zero-install). Supports documents, data formats (incl. Parquet), images (incl. JXL), audio, video, e-books, OCR, AI extraction, text-to-speech (TTS), speech-to-text (STT), subtitles (SRT, VTT, ASS), and website screenshots. Plus build a custom converter from a plain-language description (AI Studio) when no standard one fits. |
 
 ## Supported Conversions
 
@@ -85,6 +85,7 @@ https://mcp.conversiontools.io/mcp
 - **AI-powered**: Smart extraction from complex documents, subtitle translation, TTS, STT
 - **Subtitles**: SRT, VTT, ASS - bidirectional conversions
 - **Web**: Website screenshots to PDF, JPG, PNG
+- **Custom (AI Studio)**: describe a transformation in plain language and have a reusable converter built, run, and returned - for when no standard converter fits
 
 ## Authentication
 

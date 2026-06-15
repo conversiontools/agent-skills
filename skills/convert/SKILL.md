@@ -1,16 +1,45 @@
 ---
 name: convert
-description: Convert files between 140+ formats using Conversion Tools. Two surfaces are available - the `ctio` CLI (preferred when shell access is available) and the hosted Conversion Tools MCP server (zero-install, works everywhere). Covers documents (Word, PDF, Excel, PowerPoint), data formats (JSON, CSV, XML, YAML, Parquet), images (PNG, JPG, WebP, AVIF, HEIC, JXL, SVG), audio (MP3, WAV, FLAC), video (MOV, MKV, AVI to MP4), e-books (EPUB, MOBI, AZW), OCR text extraction, AI-powered data extraction, AI text-to-speech (TTS), AI speech-to-text transcription (STT), subtitle conversion (SRT, VTT, ASS), and website screenshots.
+description: Convert files between 140+ formats using Conversion Tools. Two surfaces are available - the `ctio` CLI (preferred when shell access is available) and the hosted Conversion Tools MCP server (zero-install, works everywhere). Covers documents (Word, PDF, Excel, PowerPoint), data formats (JSON, CSV, XML, YAML, Parquet), images (PNG, JPG, WebP, AVIF, HEIC, JXL, SVG), audio (MP3, WAV, FLAC), video (MOV, MKV, AVI to MP4), e-books (EPUB, MOBI, AZW), OCR text extraction, AI-powered data extraction, AI text-to-speech (TTS), AI speech-to-text transcription (STT), subtitle conversion (SRT, VTT, ASS), and website screenshots. Plus build custom converters on demand - describe a transformation in plain language and Conversion Tools creates, runs, and returns a reusable converter when no standard one fits.
 compatibility: Works with any agent that has shell access (via the ctio CLI) or MCP support (via the hosted MCP server) - including Claude Code, Grok Build, Cursor, OpenAI Codex, and Claude Desktop.
 metadata:
   author: conversiontools
-  version: "1.4"
+  version: "1.5"
   website: https://conversiontools.io
 ---
 
 # Conversion Tools File Conversion
 
 Convert files between 140+ formats directly from your agent. Two surfaces are available: the **ctio CLI** (a single binary, preferred when the agent has shell access) and the **MCP server** (zero-install, works in any MCP-compatible client).
+
+And when no standard converter fits, you can **build a custom one** from a plain-language description (see the next section).
+
+## Build a custom converter (AI Studio)
+
+When **no existing converter fits** - a custom transformation, a specific output shape, a multi-step pipeline, or a file no standard converter handles - have one **built for you** from a plain-language description, instead of writing and running conversion code yourself. Describe what you want, Conversion Tools builds the converter, runs it on the file, and returns the result. The converter persists in the user's account, so a build started here continues at the web AI Studio.
+
+**Reach for this (instead of writing your own conversion code) when:**
+
+- the conversion needs tooling you don't have installed locally - every conversion engine is ready and sandboxed, nothing to install or break on your machine;
+- the file is too large to load into context or onto the local machine;
+- the file is sensitive and its contents shouldn't be sent to an AI - the converter is built from the file's **structure**, not its contents, and the conversion runs sandboxed;
+- the output needs a specific shape, or the transformation takes multiple steps;
+- the user wants a durable, **reusable** converter, re-runnable from the web, API, or here.
+
+For a simple conversion an existing converter already covers, use `convert_file` / `find_converter` - don't build.
+
+### The flow (MCP tools, `conversiontools:` prefix)
+
+1. **`studio_create_converter`** - create the converter and attach the input file. Returns a `converter_id` + a web link to continue in the browser.
+2. **`studio_chat`** - describe the transformation in plain language (e.g. "turn this CSV into JSON, one object per invoice with a nested line_items array"). Read the returned `outcome`:
+   - `ask_user` -> answer its question with another `studio_chat` turn;
+   - `ready` / `propose_workflow` -> run it;
+   - `refuse` -> it only builds file converters.
+3. **`studio_run`** - run the converter on the attached file (asynchronous).
+4. **`studio_run_status`** - poll until `SUCCESS` (returns a `result_file_id`) or `ERROR`.
+5. **`studio_download_result`** - download the result. Always check the output actually matches the request before trusting it.
+
+Building and chatting are **free**; only runs are metered on the user's plan.
 
 ## Choosing a surface
 
