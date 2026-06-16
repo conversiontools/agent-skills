@@ -4,7 +4,7 @@ description: Convert files between 140+ formats using Conversion Tools. Two surf
 compatibility: Works with any agent that has shell access (via the ctio CLI) or MCP support (via the hosted MCP server) - including Claude Code, Grok Build, Cursor, OpenAI Codex, and Claude Desktop.
 metadata:
   author: conversiontools
-  version: "1.5"
+  version: "1.6"
   website: https://conversiontools.io
 ---
 
@@ -40,6 +40,14 @@ For a simple conversion an existing converter already covers, use `convert_file`
 5. **`studio_download_result`** - download the result. Always check the output actually matches the request before trusting it.
 
 Building and chatting are **free**; only runs are metered on the user's plan.
+
+### Reuse a converter built earlier (don't rebuild)
+
+Converters persist in the user's account, so one built last week is re-runnable today on a new file - no rebuild, same logic.
+
+1. **`studio_list_converters`** - list the user's existing custom converters (name, id, input -> output, whether runnable). Check here first before building. Pass `search` to filter.
+2. **`studio_get_converter`** - inspect one (what it does, what it's powered by, readiness).
+3. **`studio_attach_file`** - attach the new file to that converter, then poll `studio_get_converter` until its status is `idle` (extraction settles), then `studio_run` -> `studio_run_status` -> `studio_download_result` as above.
 
 ## Choosing a surface
 
