@@ -1,6 +1,6 @@
 {
   "name": "conversiontools",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Convert 140+ file formats directly in Gemini CLI - documents, data (JSON, CSV, XML, Parquet), images, audio, video, e-books, OCR, AI extraction, text-to-speech, speech-to-text, subtitles (SRT, VTT, ASS), and more.",
   "author": "Conversion Tools <info@conversiontools.io>",
   "license": "MIT",

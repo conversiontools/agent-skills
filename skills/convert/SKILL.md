@@ -4,7 +4,7 @@ description: Convert files between 140+ formats using Conversion Tools. Two surf
 compatibility: Works with any agent that has shell access (via the ctio CLI) or MCP support (via the hosted MCP server) - including Claude Code, Grok Build, Cursor, OpenAI Codex, and Claude Desktop.
 metadata:
   author: conversiontools
-  version: "1.6"
+  version: "1.7"
   website: https://conversiontools.io
 ---
 
@@ -48,6 +48,8 @@ Converters persist in the user's account, so one built last week is re-runnable 
 1. **`studio_list_converters`** - list the user's existing custom converters (name, id, input -> output, whether runnable). Check here first before building. Pass `search` to filter.
 2. **`studio_get_converter`** - inspect one (what it does, what it's powered by, readiness).
 3. **`studio_attach_file`** - attach the new file to that converter, then poll `studio_get_converter` until its status is `idle` (extraction settles), then `studio_run` -> `studio_run_status` -> `studio_download_result` as above.
+
+With shell access, the whole reuse loop is one command via the `ctio` CLI - `ctio studio run <converter_id> <file> <output>` - see "Reuse an AI Studio converter" under the ctio section below.
 
 ## Choosing a surface
 
@@ -128,6 +130,31 @@ ctio task <task_id> --format pretty
 ctio task <task_id> --wait --download out.xlsx
 ctio task list --status ERROR --limit 10
 ```
+
+### Reuse an AI Studio custom converter
+
+If you or the user built a custom converter in AI Studio, `ctio studio` runs it on new files - no rebuild. (Building and chatting are MCP- or web-only; the CLI reuses converters that already exist.)
+
+```bash
+# List your custom converters to find a converter_id
+ctio studio list
+ctio studio list invoice              # filter by name/description
+
+# Run an existing converter on a NEW file, wait, and save the result
+ctio studio run <converter_id> invoice-april.csv out.json
+ctio studio run <converter_id> data.csv -          # stream result to stdout
+
+# Re-download the converter's most recent result
+ctio studio download <converter_id> out.json
+```
+
+`ctio studio run` uploads the file, attaches it to the converter, waits for it to be ready, runs it, and downloads the result in one step (`--wait` is implied when an output path is given). To repeat the same converter across many files, loop it:
+
+```bash
+for f in invoices/*.csv; do ctio studio run <converter_id> "$f" "out/$(basename "$f").json"; done
+```
+
+Runs are metered on the user's plan; `studio list` is free.
 
 ### Conversion type names
 
