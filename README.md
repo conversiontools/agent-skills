@@ -1,6 +1,6 @@
 # `conversiontools/agent-skills`
 
-**[Conversion Tools](https://conversiontools.io) agent skills** - convert 140+ file formats directly from AI agents, or build a custom converter from a plain-language description when none fits.
+**[Conversion Tools](https://conversiontools.io) agent skills** - convert 140+ file formats directly from AI agents, build a custom converter from a plain-language description when none fits, or pull structured data out of documents with [Parse](https://parse.conversiontools.io).
 
 Two surfaces, same backend: the **`ctio` CLI** for terminal-first agents, and the hosted **MCP server** for zero-install / web-based agents. The skill teaches your agent to pick the right one.
 
@@ -71,6 +71,7 @@ https://mcp.conversiontools.io/mcp
 | Skill | Description |
 |-------|-------------|
 | [convert](https://github.com/conversiontools/agent-skills/tree/main/skills/convert) | Convert files between 140+ formats using Conversion Tools. Two surfaces - the `ctio` CLI (preferred when shell access is available) and the hosted MCP server (zero-install). Supports documents, data formats (incl. Parquet), images (incl. JXL), audio, video, e-books, OCR, AI extraction, text-to-speech (TTS), speech-to-text (STT), subtitles (SRT, VTT, ASS), and website screenshots. Plus build a custom converter from a plain-language description (AI Studio) when no standard one fits. |
+| [parse-integration](https://github.com/conversiontools/agent-skills/tree/main/skills/parse-integration) | Extract named fields from documents (invoices, receipts, purchase orders, bank statements, forms, scans) as structured JSON with Parse by Conversion Tools, and build a production integration against its API - API key, schema design, submit, poll until terminal, failure handling, webhooks instead of polling, and CSV/XLSX export. Includes copy-pasteable Python and Node.js clients. |
 
 ## Supported Conversions
 
@@ -96,6 +97,7 @@ For the MCP server, you'll be prompted to authenticate via OAuth in your browser
 - [All agent integrations](https://conversiontools.io/docs/agents)
 - [ctio CLI docs](https://conversiontools.io/docs/ctio)
 - [MCP server docs](https://conversiontools.io/docs/mcp)
+- [Parse docs (document data extraction)](https://parse.conversiontools.io/docs)
 - [Pricing](https://conversiontools.io/pricing)
 - [Support](https://conversiontools.io/contact)
 
