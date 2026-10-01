@@ -4,7 +4,7 @@ description: Convert files between 140+ formats using Conversion Tools. Two surf
 compatibility: Works with any agent that has shell access (via the ctio CLI) or MCP support (via the hosted MCP server) - including Claude Code, Grok Build, Cursor, OpenAI Codex, and Claude Desktop.
 metadata:
   author: conversiontools
-  version: "1.7"
+  version: "1.8"
   website: https://conversiontools.io
 ---
 
@@ -182,19 +182,31 @@ All tools use the `conversiontools` MCP server prefix: `conversiontools:tool_nam
 
 ### `conversiontools:convert_file` - Convert a file
 
-The primary tool. Provide input and output paths - the converter is auto-detected from file extensions.
+The primary tool. The converter is auto-detected from the file extensions of `input_path` (or `url`) and `output_path`, or set explicitly with `converter`.
+
+Give the input as exactly ONE of:
+- `url`: a public http(s) link to the file or web page - nothing to download or upload first
+- `file_id`: from `conversiontools:request_upload_url`, any size
+- `file_content`: base64 of the file, 5MB at most (it costs context - prefer an upload for anything but tiny files)
+
+Other parameters:
+- `input_path` (optional): Name of the input file, e.g. `orders.xml` - gives the input format and names the upload
+- `output_path` (optional): Name of the result, e.g. `orders.xlsx` - gives the output format
+- `converter` (optional): Explicit converter type like `convert.pdf_to_excel`. Auto-detected if omitted.
+- `options` (optional): Converter-specific options. Unsupported ones come back as `warnings`.
+
+The result has a `download_url` valid for about 30 seconds - download it right away. If `status` is `running` (long conversions such as video), call `conversiontools:get_download_url` with the `task_id` until it completes; do not start the conversion again.
+
+### `conversiontools:get_download_url` - Check a conversion / get a fresh link
 
 Parameters:
-- `input_path` (required): Path to the input file
-- `output_path` (required): Path for the converted output file
-- `file_content` (optional): Base64-encoded file content for files up to 5MB
-- `file_id` (optional): File ID from a previous `conversiontools:request_upload_url` call
-- `converter` (optional): Explicit converter type like `convert.pdf_to_excel`. Auto-detected if omitted.
-- `options` (optional): Converter-specific options
+- `task_id` (required): The `task_id` returned by `convert_file`
+
+Returns the current status and progress while running, and a fresh download link once done (use it when the first link expired).
 
 ### `conversiontools:request_upload_url` - Upload large files
 
-Get a signed URL for uploading files larger than 5MB.
+Get a one-time URL to upload a file of any size, so the bytes never pass through the conversation.
 
 Parameters:
 - `filename` (required): Name of the file to upload
@@ -224,15 +236,25 @@ Parameters:
 Parameters:
 - `converter` (required): Converter type, e.g. `convert.pdf_to_excel`
 
-### `conversiontools:auth_status` - Check login status
+### `conversiontools:auth_status` - Check login status, and as which account
 
-### `conversiontools:auth_login` - Trigger OAuth login
+### `conversiontools:auth_login` / `conversiontools:auth_logout` - Local server only
 
-### `conversiontools:auth_logout` - Clear credentials
+On the hosted server your agent handles sign-in itself (OAuth in the browser) and renews it when it expires, so these two tools are not offered there.
 
 ## How to Convert Files
 
-You must provide the file content - the server cannot read local paths. Choose the method based on file size. The response includes a `download_url` - download the result with curl.
+The hosted server cannot read local paths. Choose how to hand over the input; the response includes a `download_url` - download the result with curl right away.
+
+### Files already online
+
+Pass the public link as `url` - nothing to upload:
+
+```
+conversiontools:convert_file({ url: "https://example.com/report.xml", output_path: "report.xlsx" })
+```
+
+Web pages work the same way, e.g. `converter: "convert.website_to_pdf"` with the page URL.
 
 ### Small files (up to 5MB)
 
@@ -259,12 +281,16 @@ conversiontools:convert_file({
 curl -sL "<download_url>" -o data.csv
 ```
 
-### Large files (over 5MB)
+### Larger files (and the better choice for most local files)
 
-1. Call `conversiontools:request_upload_url` with the filename to get a signed upload URL and `file_id`
-2. Upload the file to the returned URL with `curl -X PUT`
+1. Call `conversiontools:request_upload_url` with the filename to get a one-time upload URL and `file_id`
+2. Upload the raw bytes within 5 minutes: `curl -X PUT --upload-file ./orders.xml "<upload_url>"`
 3. Call `conversiontools:convert_file` with the `file_id` instead of `file_content`
-4. Download the result from the returned `download_url`
+4. Download the result from the returned `download_url` (or poll `get_download_url` if `status` is `running`)
+
+### Prompts
+
+Hosts that support MCP prompts list `convert`, `extract_data` and `build_converter` as ready-made starting points (in Claude Code: `/mcp__conversiontools__convert`).
 
 ## Supported Categories
 
