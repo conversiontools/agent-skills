@@ -35,7 +35,7 @@ Start Codex, open the plugins browser with `/plugins`, and install the `conversi
 
 ### Grok Build
 
-Once listed in the Grok marketplace, run `/marketplace` inside Grok Build and install `conversiontools`. In the meantime, add the MCP server with `grok mcp add conversiontools --url https://mcp.conversiontools.io/mcp`.
+Once listed in the Grok marketplace, run `/marketplace` inside Grok Build and install `conversiontools`. In the meantime, add the MCP server with `grok mcp add conversiontools --url "https://mcp.conversiontools.io/mcp?toolsets=all"`.
 
 ### Gemini CLI
 
@@ -71,6 +71,8 @@ Connect to the hosted MCP server:
 ```
 https://mcp.conversiontools.io/mcp
 ```
+
+That URL offers the conversion tools. Add `?toolsets=all` for custom converters (AI Studio) and document data extraction (Parse), which this plugin turns on for you.
 
 ---
 

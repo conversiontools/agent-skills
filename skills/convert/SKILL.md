@@ -195,6 +195,8 @@ If the MCP server is not connected, add it to your agent. The server endpoint is
 https://mcp.conversiontools.io/mcp
 ```
 
+That URL offers the conversion tools only, which keeps the server light on your context. Custom converters (`studio_*`) and document data extraction (`parse_*`) are opt-in toolsets: use `https://mcp.conversiontools.io/mcp?toolsets=all` (or e.g. `?toolsets=convert,studio`). This plugin already connects with every toolset. If a `studio_*` or `parse_*` tool is missing, the server was added without them: tell the user to re-add it with `?toolsets=all`.
+
 Per-agent setup instructions (Claude Code, Grok Build, Cursor, OpenAI Codex, and any MCP client) are at <https://conversiontools.io/docs/agents>. Restart your agent after adding the server - MCP server changes require a restart to take effect.
 
 On first use, you will be prompted to authenticate via OAuth in your browser. Free accounts get 100 conversions per month (10 per day). Paid plans available at [conversiontools.io/pricing](https://conversiontools.io/pricing).

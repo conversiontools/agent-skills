@@ -1,7 +1,7 @@
 ---
 name: parse-integration
 description: Extract structured data from documents (invoices, receipts, purchase orders, bills of lading, bank statements, contracts, forms, ID documents, scans, photos of paper) with Parse by Conversion Tools, and build a production integration against its API. Covers getting an API key, defining an extraction schema, submitting a document, polling until the extraction reaches a terminal state, handling failures, replacing polling with webhooks, and exporting results to CSV or XLSX. Use when the user wants document data extraction, PDF-to-JSON with named fields, an OCR-and-structure pipeline, or asks how to integrate a document parsing API into their own code.
-compatibility: Works with any agent that has MCP support (the bundled Conversion Tools MCP server exposes the parse_* tools) and with any language for the integration guidance. Examples are Python 3.9+ and Node.js 20+.
+compatibility: Works with any agent that has MCP support (the bundled Conversion Tools MCP server exposes the parse_* tools in its parse toolset) and with any language for the integration guidance. Examples are Python 3.9+ and Node.js 20+.
 metadata:
   author: conversiontools
   version: "1.0"
@@ -40,6 +40,8 @@ There are two shortcuts, and both still report `status`, so the same branch hand
 | `parse_create_schema` | Create a reusable field definition. |
 | `parse_export` | Turn a completed extraction into CSV or XLSX. |
 | `parse_usage` | Pages used, page limit, remaining, reset date. |
+
+These tools are in the server's `parse` toolset, which this plugin turns on. Added the server by hand and the tools are missing? Re-add it as `https://mcp.conversiontools.io/mcp?toolsets=all` (or `?toolsets=convert,parse`).
 
 The loop is always: `parse_extract`, then `parse_extraction_status` every 2 to 3 seconds until terminal, then optionally `parse_export`. Check `parse_list_schemas` before inventing a new field list - reusing a schema keeps results consistent between runs and lets identical documents hit the cache.
 
