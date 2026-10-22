@@ -74,28 +74,22 @@ Full docs: <https://conversiontools.io/docs/ctio>. Releases: <https://github.com
 
 ### Install (one time)
 
-**Windows (scoop, recommended):**
+Installing software is the user's call: if `ctio` is missing, ask before installing it, or use the MCP server instead. Install it only through a package manager:
+
+**Windows (scoop):**
 
 ```bash
 scoop bucket add conversiontools https://github.com/conversiontools/scoop-bucket
 scoop install ctio
 ```
 
-**macOS / Linux (Homebrew, recommended):**
+**macOS / Linux (Homebrew):**
 
 ```bash
 brew install conversiontools/tap/ctio
 ```
 
-**macOS / Linux without Homebrew (direct download, Apple Silicon shown):**
-
-```bash
-curl -fL https://github.com/conversiontools/ctio/releases/latest/download/ctio-darwin-arm64 -o ctio
-chmod +x ctio && xattr -d com.apple.quarantine ctio 2>/dev/null || true
-sudo mv ctio /usr/local/bin/
-```
-
-Use `ctio-darwin-x64` (Intel Mac) or `ctio-linux-x64` instead. The `xattr` line is needed because the macOS binaries are not notarized; Homebrew installs don't need it.
+Without scoop or Homebrew, point the user to the per-platform downloads at <https://conversiontools.io/docs/ctio#installation> rather than downloading binaries yourself.
 
 **Update:** `scoop update ctio` or `brew upgrade ctio`.
 
