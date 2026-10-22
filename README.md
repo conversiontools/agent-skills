@@ -56,7 +56,13 @@ scoop bucket add conversiontools https://github.com/conversiontools/scoop-bucket
 scoop install ctio
 ```
 
-**macOS / Linux:** download from <https://github.com/conversiontools/ctio/releases> - one-line install commands for each platform are in the [ctio docs](https://conversiontools.io/docs/ctio).
+**macOS / Linux (Homebrew):**
+
+```bash
+brew install conversiontools/tap/ctio
+```
+
+Or download a binary from <https://github.com/conversiontools/ctio/releases> - commands for each platform are in the [ctio docs](https://conversiontools.io/docs/ctio).
 
 ### Any MCP client
 

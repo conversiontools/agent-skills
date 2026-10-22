@@ -81,7 +81,13 @@ scoop bucket add conversiontools https://github.com/conversiontools/scoop-bucket
 scoop install ctio
 ```
 
-**macOS (Apple Silicon):**
+**macOS / Linux (Homebrew, recommended):**
+
+```bash
+brew install conversiontools/tap/ctio
+```
+
+**macOS / Linux without Homebrew (direct download, Apple Silicon shown):**
 
 ```bash
 curl -fL https://github.com/conversiontools/ctio/releases/latest/download/ctio-darwin-arm64 -o ctio
@@ -89,7 +95,9 @@ chmod +x ctio && xattr -d com.apple.quarantine ctio 2>/dev/null || true
 sudo mv ctio /usr/local/bin/
 ```
 
-**macOS (Intel) / Linux:** same as above with `ctio-darwin-x64` or `ctio-linux-x64`.
+Use `ctio-darwin-x64` (Intel Mac) or `ctio-linux-x64` instead. The `xattr` line is needed because the macOS binaries are not notarized; Homebrew installs don't need it.
+
+**Update:** `scoop update ctio` or `brew upgrade ctio`.
 
 ### Authenticate (one time)
 
@@ -120,16 +128,37 @@ ctio convert -t website_to_pdf --url https://example.com out.pdf
 # Conversion options (repeatable)
 ctio convert -t excel_to_xml in.xlsx out.xml --option header=yes --option show_columns=no
 
-# Browse converters
+# Browse converters and their options
 ctio list --from pdf --to excel --format pretty
 ctio list --ai --format pretty --detail   # AI-powered converters with option keys
 ctio list --to parquet --format pretty
+ctio describe xml_to_csv --format pretty  # every option with its allowed values and default
 
 # Inspect tasks
 ctio task <task_id> --format pretty
 ctio task <task_id> --wait --download out.xlsx
 ctio task list --status ERROR --limit 10
 ```
+
+When the API ignores an option or replaces an unsupported value with its default, ctio prints a `warning:` line on stderr and the conversion still runs. Treat a warning as "the result is not what was asked for": fix the option and rerun instead of handing the output to the user.
+
+### Text to speech
+
+```bash
+# Narrate a script; the output name picks the format (.mp3 or .wav)
+ctio convert -t ai_text_to_speech script.txt narration.wav --option voice_tts=en_paul_neutral
+
+# Word, PDF and Markdown files too
+ctio convert -t ai_pdf_to_speech handbook.pdf handbook.mp3 --option voice_tts=gb_jane_neutral
+
+# The voices you can use: built-in ones plus the user's own cloned voices
+ctio voices --format pretty
+```
+
+- `voice_tts` takes a built-in voice id (`gb_oliver_neutral`, `en_paul_neutral`, `gb_jane_neutral`, `fr_marie_neutral`, and other speaking styles of each; `ctio voices` lists them) or the ID of a voice the user cloned on voice.conversiontools.io (shown next to each clone on its dashboard, usable only from the account that cloned it). An unknown voice, format or language is an error, never a silent fallback.
+- Output is MP3 or WAV, chosen by the output file name or `--option output_tts=wav`; an `output_tts` that contradicts the file name is refused before upload.
+- The audio comes out at spoken-word loudness (about -16 LUFS), 24 kHz mono, ready to drop into a video without a loudness pass.
+- Costs 10 AI credits per 1,000 characters.
 
 ### Reuse an AI Studio custom converter
 
@@ -158,7 +187,7 @@ Runs are metered on the user's plan; `studio list` is free.
 
 ### Conversion type names
 
-The `-t` flag accepts the same conversion type names as the MCP `convert_file` tool's `converter` parameter (e.g. `convert.pdf_to_excel` or just `pdf_to_excel` - the `convert.` prefix is auto-prepended). Run `ctio list` to browse the live registry.
+The `-t` flag accepts the same conversion type names as the MCP `convert_file` tool's `converter` parameter (e.g. `convert.pdf_to_excel` or just `pdf_to_excel` - the `convert.` prefix is auto-prepended). Some converters also answer to a clearer name (`ai_text_to_speech` for `ai_text_to_mp3`, which also writes WAV). Run `ctio list` to browse the live registry and `ctio describe <type>` for a converter's options.
 
 ---
 
@@ -335,16 +364,18 @@ Use when: standard pdf_to_csv/excel returns garbled output, the document has nes
 
 #### AI Text-to-Speech (TTS)
 
-Convert text content into natural-sounding MP3. Supports multiple languages and voices.
+Convert text content into natural-sounding speech, as MP3 or WAV (`output_tts`), at spoken-word loudness (about -16 LUFS, 24 kHz mono).
 
 | Type | What it does |
 |---|---|
-| `convert.ai_text_to_mp3` | Plain text to MP3 audio. |
-| `convert.ai_pdf_to_mp3` | PDF document narrated as MP3. Good for long reads, papers, news articles. |
-| `convert.ai_docx_to_mp3` | Word document narrated as MP3. |
-| `convert.ai_md_to_mp3` | Markdown narrated as MP3 (skips fenced code blocks). |
+| `convert.ai_text_to_mp3` | Plain text to speech. Also answers to `convert.ai_text_to_speech`. |
+| `convert.ai_pdf_to_mp3` | PDF document narrated. Good for long reads, papers, news articles. Also `convert.ai_pdf_to_speech`. |
+| `convert.ai_docx_to_mp3` | Word document narrated. Also `convert.ai_docx_to_speech`. |
+| `convert.ai_md_to_mp3` | Markdown narrated (skips fenced code blocks). Also `convert.ai_md_to_speech`. |
 
-Use when: the user wants an audio version of a document, accessibility (screen-reader alternative), or content for podcast/voice-over workflows.
+Options: `voice_tts` (a built-in voice id from `conversiontools:get_converter_info`, or the ID of a voice the user cloned on voice.conversiontools.io, usable only from that account), `output_tts` (`mp3` or `wav`), `language_tts`. An unknown voice, format or language fails with an error that names it; pass the values exactly as listed.
+
+Use when: the user wants an audio version of a document, accessibility (screen-reader alternative), or narration for videos, podcasts and voice-overs.
 
 #### AI Speech-to-Text (STT)
 
