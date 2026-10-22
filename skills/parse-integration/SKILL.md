@@ -41,7 +41,7 @@ There are two shortcuts, and both still report `status`, so the same branch hand
 | `parse_export` | Turn a completed extraction into CSV or XLSX. |
 | `parse_usage` | Pages used, page limit, remaining, reset date. |
 
-These tools are in the server's `parse` toolset, which this plugin turns on. Added the server by hand and the tools are missing? Re-add it as `https://mcp.conversiontools.io/mcp?toolsets=all` (or `?toolsets=convert,parse`).
+These tools are in the server's `parse` toolset, which this plugin turns on. On claude.ai or in Cowork, connect the plugin's connector once first: **Customize > Plugins > Conversion Tools > Connectors > Connect**. Added the server by hand and the tools are missing? Re-add it as `https://mcp.conversiontools.io/mcp?toolsets=all` (or `?toolsets=convert,parse`).
 
 The loop is always: `parse_extract`, then `parse_extraction_status` every 2 to 3 seconds until terminal, then optionally `parse_export`. Check `parse_list_schemas` before inventing a new field list - reusing a schema keeps results consistent between runs and lets identical documents hit the cache.
 

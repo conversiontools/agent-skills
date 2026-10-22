@@ -189,6 +189,8 @@ The `-t` flag accepts the same conversion type names as the MCP `convert_file` t
 
 If `ctio` is not available, use the hosted Conversion Tools MCP server. If the MCP server is already connected, skip to **Available Tools**.
 
+**On claude.ai or in Cowork** there is no shell, so the MCP server is the only path. This plugin bundles it, but each person connects it once: **Customize > Plugins > Conversion Tools > Connectors > Connect**, then signs in with their Conversion Tools account. If no `conversiontools` tools are available in such a session, tell the user exactly that, so they can connect it.
+
 If the MCP server is not connected, add it to your agent. The server endpoint is:
 
 ```
