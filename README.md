@@ -109,6 +109,10 @@ For the MCP server, you'll be prompted to authenticate via OAuth in your browser
 - [Pricing](https://conversiontools.io/pricing)
 - [Support](https://conversiontools.io/contact)
 
+## Privacy
+
+The plugin sends the files and documents you ask it to process to Conversion Tools (conversiontools.io) over HTTPS, under your own account. What is stored and for how long is in the [Privacy Policy](https://conversiontools.io/privacy-policy).
+
 ## License
 
 MIT

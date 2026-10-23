@@ -245,7 +245,7 @@ Rule of thumb: retry `5xx` and network errors, never `4xx`.
 
 ## Reference implementation: Python
 
-Python 3.9+, `pip install requests`.
+Python 3.9+ with the `requests` package.
 
 ```python
 """Minimal, production-shaped Parse client: submit, poll until terminal, export."""
