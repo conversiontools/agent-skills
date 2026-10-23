@@ -50,11 +50,11 @@ The loop is always: `parse_extract`, then `parse_extraction_status` every 2 to 3
 ## Building an integration
 
 Base URL: `https://api-parse.conversiontools.io`
-Auth: `Authorization: Bearer <api key>` on every request.
+Auth: an `Authorization: Bearer` header with the API key on every request; the samples write it as `${user_config.parse_api_key}` (Step 1).
 
 ### Step 1: get an API key
 
-Create an account at [parse.conversiontools.io](https://parse.conversiontools.io), then go to **Dashboard, API Keys** ([direct link](https://parse.conversiontools.io/dashboard/api-keys)) and create a key. Keys look like `pk_live_...`.
+Create an account at [parse.conversiontools.io](https://parse.conversiontools.io), then go to **Dashboard, API Keys** ([direct link](https://parse.conversiontools.io/dashboard/api-keys)) and create a key.
 
 The plugin takes the key as its `parse_api_key` setting (sensitive, kept in the host's secure credential store), and the examples below refer to it as `${user_config.parse_api_key}`. Claude Code fills that in; other hosts show it as written, and the user's own application loads the key from its secret manager at runtime. Never commit it, never log it, never put it in client-side code - the key carries the account's full page allowance. Never ask the user to paste the key into the conversation.
 
