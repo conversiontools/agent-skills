@@ -56,11 +56,7 @@ Auth: `Authorization: Bearer <api key>` on every request.
 
 Create an account at [parse.conversiontools.io](https://parse.conversiontools.io), then go to **Dashboard, API Keys** ([direct link](https://parse.conversiontools.io/dashboard/api-keys)) and create a key. Keys look like `pk_live_...`.
 
-Keep it in an environment variable or a secret manager. Never commit it, never log it, never put it in client-side code - the key carries the account's full page allowance.
-
-```bash
-export PARSE_API_KEY="pk_live_..."
-```
+Keep it in your application's secret store or configuration. Never commit it, never log it, never put it in client-side code - the key carries the account's full page allowance. The examples below write it as `<your API key>`; the user supplies the real value in their own code. Never ask the user to paste the key into the conversation.
 
 ### Step 2: define a schema
 
@@ -78,7 +74,7 @@ Field rules, enforced server-side:
 
 ```bash
 curl -X POST https://api-parse.conversiontools.io/v1/schemas \
-  -H "Authorization: Bearer $PARSE_API_KEY" \
+  -H "Authorization: Bearer <your API key>" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Supplier invoice",
@@ -113,7 +109,7 @@ One call, `multipart/form-data`:
 
 ```bash
 curl -X POST https://api-parse.conversiontools.io/v1/extract \
-  -H "Authorization: Bearer $PARSE_API_KEY" \
+  -H "Authorization: Bearer <your API key>" \
   -F "file=@invoice.pdf" \
   -F "schema_id=SCHEMA_ID"
 ```
@@ -129,12 +125,12 @@ Or split it into upload and extract, which is the better shape when you extract 
 ```bash
 # 1. upload -> file_id
 curl -X POST https://api-parse.conversiontools.io/v1/upload \
-  -H "Authorization: Bearer $PARSE_API_KEY" \
+  -H "Authorization: Bearer <your API key>" \
   -F "file=@invoice.pdf"
 
 # 2. extract by file_id (JSON body)
 curl -X POST https://api-parse.conversiontools.io/v1/extract \
-  -H "Authorization: Bearer $PARSE_API_KEY" \
+  -H "Authorization: Bearer <your API key>" \
   -H "Content-Type: application/json" \
   -d '{ "file_id": "FILE_ID", "schema_id": "SCHEMA_ID" }'
 ```
@@ -147,7 +143,7 @@ Send `no_cache` only when you actually want to bypass the cache. Any value prese
 
 ```bash
 curl https://api-parse.conversiontools.io/v1/extractions/EXTRACTION_ID \
-  -H "Authorization: Bearer $PARSE_API_KEY"
+  -H "Authorization: Bearer <your API key>"
 ```
 
 ```json
@@ -210,14 +206,14 @@ Exports run the extracted JSON through a normal conversion. They are free, repea
 ```bash
 # start it (idempotent per format - a running export is reused)
 curl -X POST https://api-parse.conversiontools.io/v1/extractions/EXTRACTION_ID/export \
-  -H "Authorization: Bearer $PARSE_API_KEY" \
+  -H "Authorization: Bearer <your API key>" \
   -H "Content-Type: application/json" \
   -d '{ "format": "xlsx" }'
 
 # poll, then download when ready
 curl -L -o invoice.xlsx \
   "https://api-parse.conversiontools.io/v1/extractions/EXTRACTION_ID/export?format=xlsx" \
-  -H "Authorization: Bearer $PARSE_API_KEY"
+  -H "Authorization: Bearer <your API key>"
 ```
 
 The `GET` speaks two languages: `application/json` with `{"status": "processing", "progress": N}` while it converts, and the file's own bytes once it is ready. **Check the response Content-Type**, do not assume you got a file. Nested arrays are flattened into rows with the parent values repeated, which is the layout spreadsheet users expect.
@@ -255,7 +251,6 @@ Python 3.9+, `pip install requests`.
 """Minimal, production-shaped Parse client: submit, poll until terminal, export."""
 
 import json
-import os
 import time
 from pathlib import Path
 from typing import Any, Optional
@@ -263,7 +258,7 @@ from typing import Any, Optional
 import requests
 
 BASE_URL = "https://api-parse.conversiontools.io/v1"
-API_KEY = os.environ["PARSE_API_KEY"]          # never hardcode the key
+API_KEY = "<your API key>"   # load it from your app's secret store; never commit a real key
 HEADERS = {"Authorization": f"Bearer {API_KEY}"}
 
 
@@ -399,7 +394,7 @@ def export(extraction_id: str, fmt: str, out_path: str | Path, *, timeout_s: flo
 
 
 if __name__ == "__main__":
-    submitted = submit("invoice.pdf", schema_id=os.environ["PARSE_SCHEMA_ID"])
+    submitted = submit("invoice.pdf", schema_id="<your schema id>")
     print("submitted:", submitted["id"], submitted["status"])
 
     try:
@@ -427,8 +422,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { basename } from 'node:path';
 
 const BASE_URL = 'https://api-parse.conversiontools.io/v1';
-const API_KEY = process.env.PARSE_API_KEY; // never hardcode the key
-if (!API_KEY) throw new Error('PARSE_API_KEY is not set');
+const API_KEY = '<your API key>'; // load it from your app's secret store; never commit a real key
 
 const authHeaders = { Authorization: `Bearer ${API_KEY}` };
 
@@ -533,7 +527,7 @@ export async function exportTo(id, format, outPath, { timeoutMs = 300_000 } = {}
 }
 
 // --- usage ---------------------------------------------------------------
-const submitted = await submit('invoice.pdf', { schemaId: process.env.PARSE_SCHEMA_ID });
+const submitted = await submit('invoice.pdf', { schemaId: '<your schema id>' });
 console.log('submitted:', submitted.id, submitted.status);
 
 // A cache hit already comes back completed - the same branch handles it.
@@ -556,10 +550,11 @@ await exportTo(result.id, 'xlsx', 'invoice.xlsx');
 from flask import Flask, request, abort
 
 app = Flask(__name__)
+WEBHOOK_PATH = "<random path you registered>"     # from your app's secret store; treat the URL as a secret
 
-@app.post("/hooks/parse/<secret_path>")          # unguessable path; treat the URL as a secret
+@app.post("/hooks/parse/<secret_path>")          # unguessable path
 def parse_webhook(secret_path: str):
-    if secret_path != os.environ["PARSE_WEBHOOK_PATH"]:
+    if secret_path != WEBHOOK_PATH:
         abort(404)
 
     event = request.get_json(silent=True) or {}
