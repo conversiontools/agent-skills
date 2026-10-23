@@ -50,13 +50,13 @@ The loop is always: `parse_extract`, then `parse_extraction_status` every 2 to 3
 ## Building an integration
 
 Base URL: `https://api-parse.conversiontools.io`
-Auth: an `Authorization: Bearer` header with the API key on every request; the samples write it as `${user_config.parse_api_key}` (Step 1).
+Auth: an `Authorization: Bearer <your API key>` header on every request.
 
 ### Step 1: get an API key
 
 Create an account at [parse.conversiontools.io](https://parse.conversiontools.io), then go to **Dashboard, API Keys** ([direct link](https://parse.conversiontools.io/dashboard/api-keys)) and create a key.
 
-The plugin takes the key as its `parse_api_key` setting (sensitive, kept in the host's secure credential store), and the examples below refer to it as `${user_config.parse_api_key}`. Claude Code fills that in; other hosts show it as written, and the user's own application loads the key from its secret manager at runtime. Never commit it, never log it, never put it in client-side code - the key carries the account's full page allowance. Never ask the user to paste the key into the conversation.
+The key belongs to the user's application: it loads the key from its own secret manager at startup and passes it to the client (`configure(api_key)` in the reference implementations; `<your API key>` in the curl examples). Never commit it, never log it, never put it in client-side code - the key carries the account's full page allowance. Never ask the user to paste the key into the conversation.
 
 ### Step 2: define a schema
 
@@ -74,7 +74,7 @@ Field rules, enforced server-side:
 
 ```bash
 curl -X POST https://api-parse.conversiontools.io/v1/schemas \
-  -H "Authorization: Bearer ${user_config.parse_api_key}" \
+  -H "Authorization: Bearer <your API key>" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Supplier invoice",
@@ -109,7 +109,7 @@ One call, `multipart/form-data`:
 
 ```bash
 curl -X POST https://api-parse.conversiontools.io/v1/extract \
-  -H "Authorization: Bearer ${user_config.parse_api_key}" \
+  -H "Authorization: Bearer <your API key>" \
   -F "file=@invoice.pdf" \
   -F "schema_id=SCHEMA_ID"
 ```
@@ -125,12 +125,12 @@ Or split it into upload and extract, which is the better shape when you extract 
 ```bash
 # 1. upload -> file_id
 curl -X POST https://api-parse.conversiontools.io/v1/upload \
-  -H "Authorization: Bearer ${user_config.parse_api_key}" \
+  -H "Authorization: Bearer <your API key>" \
   -F "file=@invoice.pdf"
 
 # 2. extract by file_id (JSON body)
 curl -X POST https://api-parse.conversiontools.io/v1/extract \
-  -H "Authorization: Bearer ${user_config.parse_api_key}" \
+  -H "Authorization: Bearer <your API key>" \
   -H "Content-Type: application/json" \
   -d '{ "file_id": "FILE_ID", "schema_id": "SCHEMA_ID" }'
 ```
@@ -143,7 +143,7 @@ Send `no_cache` only when you actually want to bypass the cache. Any value prese
 
 ```bash
 curl https://api-parse.conversiontools.io/v1/extractions/EXTRACTION_ID \
-  -H "Authorization: Bearer ${user_config.parse_api_key}"
+  -H "Authorization: Bearer <your API key>"
 ```
 
 ```json
@@ -206,7 +206,7 @@ Exports run the extracted JSON through a normal conversion. They are free, repea
 ```bash
 # start it (idempotent per format - a running export is reused)
 curl -X POST https://api-parse.conversiontools.io/v1/extractions/EXTRACTION_ID/export \
-  -H "Authorization: Bearer ${user_config.parse_api_key}" \
+  -H "Authorization: Bearer <your API key>" \
   -H "Content-Type: application/json" \
   -d '{ "format": "xlsx" }'
 ```
@@ -253,8 +253,12 @@ from typing import Any, Optional
 import requests
 
 BASE_URL = "https://api-parse.conversiontools.io/v1"
-API_KEY = "${user_config.parse_api_key}"   # the plugin setting; your app loads it from its secret manager
-HEADERS = {"Authorization": f"Bearer {API_KEY}"}
+HEADERS: dict[str, str] = {}
+
+
+def configure(api_key: str) -> None:
+    """Call once at startup. The key comes from your app's secret manager, never from this file."""
+    HEADERS["Authorization"] = f"Bearer {api_key}"
 
 
 class ParseError(RuntimeError):
@@ -388,7 +392,8 @@ def export(extraction_id: str, fmt: str, out_path: str | Path, *, timeout_s: flo
     raise ExtractionPending(f"export of {extraction_id} still converting after {timeout_s:.0f}s")
 
 
-if __name__ == "__main__":
+def main(api_key: str) -> None:
+    configure(api_key)
     submitted = submit("invoice.pdf", schema_id="<your schema id>")
     print("submitted:", submitted["id"], submitted["status"])
 
@@ -405,6 +410,12 @@ if __name__ == "__main__":
         print("needs review:", result["validation"].get("warnings"))
 
     export(result["id"], "xlsx", "invoice.xlsx")
+
+
+if __name__ == "__main__":
+    from getpass import getpass
+
+    main(getpass("Parse API key: "))   # for a one-off run; a service injects it from its secret manager
 ```
 
 ## Reference implementation: Node.js
@@ -417,9 +428,12 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { basename } from 'node:path';
 
 const BASE_URL = 'https://api-parse.conversiontools.io/v1';
-const API_KEY = '${user_config.parse_api_key}'; // the plugin setting; your app loads it from its secret manager
+let authHeaders = {};
 
-const authHeaders = { Authorization: `Bearer ${API_KEY}` };
+/** Call once at startup. The key comes from your app's secret manager, never from this file. */
+export function configure(apiKey) {
+  authHeaders = { Authorization: `Bearer ${apiKey}` };
+}
 
 export class ParseError extends Error {
   constructor(status, message, details) {
@@ -521,21 +535,24 @@ export async function exportTo(id, format, outPath, { timeoutMs = 300_000 } = {}
   throw new ExtractionPending(`export of ${id} still converting`);
 }
 
-// --- usage ---------------------------------------------------------------
-const submitted = await submit('invoice.pdf', { schemaId: '<your schema id>' });
-console.log('submitted:', submitted.id, submitted.status);
+// --- usage: your app passes the key in from its secret manager --------------
+export async function run(apiKey) {
+  configure(apiKey);
+  const submitted = await submit('invoice.pdf', { schemaId: '<your schema id>' });
+  console.log('submitted:', submitted.id, submitted.status);
 
-// A cache hit already comes back completed - the same branch handles it.
-const result = submitted.status === 'completed' ? submitted : await waitForResult(submitted.id);
+  // A cache hit already comes back completed - the same branch handles it.
+  const result = submitted.status === 'completed' ? submitted : await waitForResult(submitted.id);
 
-console.log('pages billed:', result.pages_used, 'cached:', Boolean(result.cached));
-console.log(JSON.stringify(result.data, null, 2));
+  console.log('pages billed:', result.pages_used, 'cached:', Boolean(result.cached));
+  console.log(JSON.stringify(result.data, null, 2));
 
-if (['partial', 'failed'].includes(result.validation?.status)) {
-  console.warn('needs review:', result.validation.warnings);
+  if (['partial', 'failed'].includes(result.validation?.status)) {
+    console.warn('needs review:', result.validation.warnings);
+  }
+
+  await exportTo(result.id, 'xlsx', 'invoice.xlsx');
 }
-
-await exportTo(result.id, 'xlsx', 'invoice.xlsx');
 ```
 
 ## Webhook receiver
