@@ -56,7 +56,7 @@ Auth: `Authorization: Bearer <api key>` on every request.
 
 Create an account at [parse.conversiontools.io](https://parse.conversiontools.io), then go to **Dashboard, API Keys** ([direct link](https://parse.conversiontools.io/dashboard/api-keys)) and create a key. Keys look like `pk_live_...`.
 
-Keep it in your application's secret store or configuration. Never commit it, never log it, never put it in client-side code - the key carries the account's full page allowance. The examples below write it as `<your API key>`; the user supplies the real value in their own code. Never ask the user to paste the key into the conversation.
+The plugin takes the key as its `parse_api_key` setting (sensitive, kept in the host's secure credential store), and the examples below refer to it as `${user_config.parse_api_key}`. Claude Code fills that in; other hosts show it as written, and the user's own application loads the key from its secret manager at runtime. Never commit it, never log it, never put it in client-side code - the key carries the account's full page allowance. Never ask the user to paste the key into the conversation.
 
 ### Step 2: define a schema
 
@@ -74,7 +74,7 @@ Field rules, enforced server-side:
 
 ```bash
 curl -X POST https://api-parse.conversiontools.io/v1/schemas \
-  -H "Authorization: Bearer <your API key>" \
+  -H "Authorization: Bearer ${user_config.parse_api_key}" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Supplier invoice",
@@ -109,7 +109,7 @@ One call, `multipart/form-data`:
 
 ```bash
 curl -X POST https://api-parse.conversiontools.io/v1/extract \
-  -H "Authorization: Bearer <your API key>" \
+  -H "Authorization: Bearer ${user_config.parse_api_key}" \
   -F "file=@invoice.pdf" \
   -F "schema_id=SCHEMA_ID"
 ```
@@ -125,12 +125,12 @@ Or split it into upload and extract, which is the better shape when you extract 
 ```bash
 # 1. upload -> file_id
 curl -X POST https://api-parse.conversiontools.io/v1/upload \
-  -H "Authorization: Bearer <your API key>" \
+  -H "Authorization: Bearer ${user_config.parse_api_key}" \
   -F "file=@invoice.pdf"
 
 # 2. extract by file_id (JSON body)
 curl -X POST https://api-parse.conversiontools.io/v1/extract \
-  -H "Authorization: Bearer <your API key>" \
+  -H "Authorization: Bearer ${user_config.parse_api_key}" \
   -H "Content-Type: application/json" \
   -d '{ "file_id": "FILE_ID", "schema_id": "SCHEMA_ID" }'
 ```
@@ -143,7 +143,7 @@ Send `no_cache` only when you actually want to bypass the cache. Any value prese
 
 ```bash
 curl https://api-parse.conversiontools.io/v1/extractions/EXTRACTION_ID \
-  -H "Authorization: Bearer <your API key>"
+  -H "Authorization: Bearer ${user_config.parse_api_key}"
 ```
 
 ```json
@@ -206,17 +206,12 @@ Exports run the extracted JSON through a normal conversion. They are free, repea
 ```bash
 # start it (idempotent per format - a running export is reused)
 curl -X POST https://api-parse.conversiontools.io/v1/extractions/EXTRACTION_ID/export \
-  -H "Authorization: Bearer <your API key>" \
+  -H "Authorization: Bearer ${user_config.parse_api_key}" \
   -H "Content-Type: application/json" \
   -d '{ "format": "xlsx" }'
-
-# poll, then download when ready
-curl -L -o invoice.xlsx \
-  "https://api-parse.conversiontools.io/v1/extractions/EXTRACTION_ID/export?format=xlsx" \
-  -H "Authorization: Bearer <your API key>"
 ```
 
-The `GET` speaks two languages: `application/json` with `{"status": "processing", "progress": N}` while it converts, and the file's own bytes once it is ready. **Check the response Content-Type**, do not assume you got a file. Nested arrays are flattened into rows with the parent values repeated, which is the layout spreadsheet users expect.
+Then poll `GET /v1/extractions/EXTRACTION_ID/export?format=xlsx` with the same `Authorization` header and save the body once it is the file; the Python and Node clients below do exactly that. The `GET` speaks two languages: `application/json` with `{"status": "processing", "progress": N}` while it converts, and the file's own bytes once it is ready. **Check the response Content-Type**, do not assume you got a file. Nested arrays are flattened into rows with the parent values repeated, which is the layout spreadsheet users expect.
 
 You can also pass `output_format: "csv" | "xlsx"` at submit time to start the export automatically as soon as the extraction completes.
 
@@ -258,7 +253,7 @@ from typing import Any, Optional
 import requests
 
 BASE_URL = "https://api-parse.conversiontools.io/v1"
-API_KEY = "<your API key>"   # load it from your app's secret store; never commit a real key
+API_KEY = "${user_config.parse_api_key}"   # the plugin setting; your app loads it from its secret manager
 HEADERS = {"Authorization": f"Bearer {API_KEY}"}
 
 
@@ -422,7 +417,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { basename } from 'node:path';
 
 const BASE_URL = 'https://api-parse.conversiontools.io/v1';
-const API_KEY = '<your API key>'; // load it from your app's secret store; never commit a real key
+const API_KEY = '${user_config.parse_api_key}'; // the plugin setting; your app loads it from its secret manager
 
 const authHeaders = { Authorization: `Bearer ${API_KEY}` };
 
@@ -550,7 +545,7 @@ await exportTo(result.id, 'xlsx', 'invoice.xlsx');
 from flask import Flask, request, abort
 
 app = Flask(__name__)
-WEBHOOK_PATH = "<random path you registered>"     # from your app's secret store; treat the URL as a secret
+WEBHOOK_PATH = "<random path you registered>"     # long and random; keep it out of version control
 
 @app.post("/hooks/parse/<secret_path>")          # unguessable path
 def parse_webhook(secret_path: str):
@@ -578,7 +573,7 @@ Keep a slow reconciliation poll for anything you never got a webhook for. Delive
 
 ## Checklist before calling an integration done
 
-- [ ] The key comes from the environment or a secret manager, and never reaches logs, the client, or version control.
+- [ ] The key is loaded from a secret manager at runtime and never reaches logs, the client, or version control.
 - [ ] The code branches on `status`, and no path assumes the data is in the submit response.
 - [ ] Polling has a wall-clock deadline and a backoff, and a timeout is handled separately from a failure.
 - [ ] `failed` is not blind-retried; it is logged with the id and routed to a human or a fallback.
