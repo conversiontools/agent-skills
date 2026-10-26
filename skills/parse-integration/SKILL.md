@@ -432,12 +432,12 @@ let authHeaders = {};
 
 /** Call once at startup. The key comes from your app's secret manager, never from this file. */
 export function configure(apiKey) {
-  authHeaders = { Authorization: `Bearer ${apiKey}` };
+  authHeaders = { Authorization: 'Bearer ' + apiKey };
 }
 
 export class ParseError extends Error {
   constructor(status, message, details) {
-    super(`HTTP ${status}: ${message}`);
+    super('HTTP ' + status + ': ' + message);
     this.name = 'ParseError';
     this.status = status;
     this.details = details;
@@ -461,7 +461,7 @@ async function unwrap(response) {
 
 export async function createSchema(name, fields, description = '') {
   const body = await unwrap(
-    await fetch(`${BASE_URL}/schemas`, {
+    await fetch(BASE_URL + '/schemas', {
       method: 'POST',
       headers: { ...authHeaders, 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, fields, description }),
@@ -481,11 +481,11 @@ export async function submit(filePath, { schemaId, fields, webhookUrl, noCache =
   if (noCache) form.append('no_cache', 'true');
 
   // Do NOT set Content-Type by hand - fetch adds the multipart boundary.
-  return unwrap(await fetch(`${BASE_URL}/extract`, { method: 'POST', headers: authHeaders, body: form }));
+  return unwrap(await fetch(BASE_URL + '/extract', { method: 'POST', headers: authHeaders, body: form }));
 }
 
 export async function getExtraction(id) {
-  return unwrap(await fetch(`${BASE_URL}/extractions/${id}`, { headers: authHeaders }));
+  return unwrap(await fetch(BASE_URL + '/extractions/' + id, { headers: authHeaders }));
 }
 
 /** Poll until terminal. Branches on `status`, never on elapsed time. */
@@ -502,13 +502,13 @@ export async function waitForResult(id, { timeoutMs = 600_000 } = {}) {
     interval = Math.min(interval * 1.5, 10_000);
   }
 
-  throw new ExtractionPending(`${id} still processing; it keeps running server-side, poll this id again later`);
+  throw new ExtractionPending(id + ' still processing; it keeps running server-side, poll this id again later');
 }
 
 /** Export a COMPLETED extraction to csv or xlsx and save it. */
 export async function exportTo(id, format, outPath, { timeoutMs = 300_000 } = {}) {
   await unwrap(
-    await fetch(`${BASE_URL}/extractions/${id}/export`, {
+    await fetch(BASE_URL + '/extractions/' + id + '/export', {
       method: 'POST',
       headers: { ...authHeaders, 'Content-Type': 'application/json' },
       body: JSON.stringify({ format }),
@@ -517,7 +517,7 @@ export async function exportTo(id, format, outPath, { timeoutMs = 300_000 } = {}
 
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
-    const response = await fetch(`${BASE_URL}/extractions/${id}/export?format=${format}`, { headers: authHeaders });
+    const response = await fetch(BASE_URL + '/extractions/' + id + '/export?format=' + format, { headers: authHeaders });
     if (!response.ok) await unwrap(response);
 
     // JSON means "still converting" or "failed"; anything else is the file.
@@ -532,7 +532,7 @@ export async function exportTo(id, format, outPath, { timeoutMs = 300_000 } = {}
     return outPath;
   }
 
-  throw new ExtractionPending(`export of ${id} still converting`);
+  throw new ExtractionPending('export of ' + id + ' still converting');
 }
 
 // --- usage: your app passes the key in from its secret manager --------------
