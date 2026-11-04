@@ -149,7 +149,8 @@ ctio convert -t ai_pdf_to_speech handbook.pdf handbook.mp3 --option voice_tts=gb
 ctio voices --format pretty
 ```
 
-- `voice_tts` takes a built-in voice id (`gb_oliver_neutral`, `en_paul_neutral`, `gb_jane_neutral`, `fr_marie_neutral`, and other speaking styles of each; `ctio voices` lists them) or the ID of a voice the user cloned on voice.conversiontools.io (shown next to each clone on its dashboard, usable only from the account that cloned it). An unknown voice, format or language is an error, never a silent fallback.
+- `voice_tts` takes one of the 66 built-in voice ids in 21 languages (`voice_478` Sheila, US English; `gb_oliver_neutral`; `fr_marie_neutral`; `voice_3133` Haruto, Japanese; `ctio voices` lists them all with the `language_tts` code each speaks) or the ID of a voice the user cloned on voice.conversiontools.io (shown next to each clone on its dashboard, usable only from the account that cloned it). An unknown voice, format or language is an error, never a silent fallback.
+- `language_tts` is the language the text is written in (38 codes, `ctio describe ai_text_to_mp3` lists them). Pick a voice that speaks that language.
 - Output is MP3 or WAV, chosen by the output file name or `--option output_tts=wav`; an `output_tts` that contradicts the file name is refused before upload.
 - The audio comes out at spoken-word loudness (about -16 LUFS), 24 kHz mono, ready to drop into a video without a loudness pass.
 - Costs 10 AI credits per 1,000 characters.
@@ -371,7 +372,7 @@ Convert text content into natural-sounding speech, as MP3 or WAV (`output_tts`),
 | `convert.ai_docx_to_mp3` | Word document narrated. Also `convert.ai_docx_to_speech`. |
 | `convert.ai_md_to_mp3` | Markdown narrated (skips fenced code blocks). Also `convert.ai_md_to_speech`. |
 
-Options: `voice_tts` (a built-in voice id from `conversiontools:get_converter_info`, or the ID of a voice the user cloned on voice.conversiontools.io, usable only from that account), `output_tts` (`mp3` or `wav`), `language_tts`. An unknown voice, format or language fails with an error that names it; pass the values exactly as listed.
+Options: `voice_tts` (a built-in voice id from `conversiontools:get_converter_info`, or the ID of a voice the user cloned on voice.conversiontools.io, usable only from that account), `output_tts` (`mp3` or `wav`), `language_tts` (the language of the text; each built-in voice's label names the language it speaks, so pick one that matches). An unknown voice, format or language fails with an error that names it; pass the values exactly as listed.
 
 Use when: the user wants an audio version of a document, accessibility (screen-reader alternative), or narration for videos, podcasts and voice-overs.
 
