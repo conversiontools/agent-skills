@@ -12,7 +12,7 @@
       "name": "conversiontools",
       "source": "./",
       "description": "Convert files between 140+ formats, pull data out of documents, and build custom converters, right inside Claude.",
-      "version": "1.12.0",
+      "version": "1.13.0",
       "category": "integrations"
     }
   ]

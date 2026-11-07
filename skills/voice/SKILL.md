@@ -40,7 +40,7 @@ Options:
 
 An unknown voice, language or format is an error that names the value, never a silent fallback.
 
-**Choosing a voice.** List the voices before picking one: `ctio voices --format pretty` (built-in voices plus the user's own clones, each with its language), or `get_converter_info` with `convert.ai_text_to_mp3` over MCP (every `voice_tts` value with its label). Match the language first, then the style the user asked for.
+**Choosing a voice.** List the voices before picking one: `ctio voice --format pretty` (built-in voices plus the user's own clones, each with its language), or `get_converter_info` with `convert.ai_text_to_mp3` over MCP (every `voice_tts` value with its label). Match the language first, then the style the user asked for.
 
 ```bash
 # A script, narrated; the output name picks the format
@@ -70,7 +70,9 @@ Over MCP, the same job is one `convert_file` call: `converter` `convert.ai_text_
 
 **Consent comes first.** Only clone the user's own voice, or a voice whose speaker has given explicit permission. The clone form asks the user to confirm exactly that. Do not help clone a celebrity, a public figure, or anyone who has not agreed, and do not write a sample script meant to imitate someone else.
 
-**Where.** Cloning happens on [voice.conversiontools.io](https://voice.conversiontools.io), right in the browser, on a computer or a phone:
+**Two ways to clone.** In the browser on [voice.conversiontools.io](https://voice.conversiontools.io), which records the sample for the user (any surface, nothing to install), or with ctio from an audio file (shell available). Both create the same clone in the same account: it shows on the dashboard and in `ctio voice`.
+
+**In the browser,** on a computer or a phone:
 
 1. Sign in with the Conversion Tools account and open **Dashboard > Clone a voice**. **Record** is the default (**Upload** is next to it for a clip recorded elsewhere).
 2. Tap the microphone and allow access. Read the sample script (below) while a timer runs: 3 seconds is the minimum, about 10 seconds works best, and it stops on its own at 30 seconds.
@@ -79,7 +81,21 @@ Over MCP, the same job is one `convert_file` call: `converter` `convert.ai_text_
 
 Each clone shows its **Voice ID** with a copy button; that ID is the `voice_tts` value for every narration above. If the microphone is blocked or missing, the page offers **Upload a clip instead**.
 
-**For an uploaded clip.** MP3, WAV, M4A, FLAC, OGG, WebM or Opus, 3 seconds minimum, about 10 seconds of clear speech recommended, up to 512 KB on the free plan and 2 MB on paid plans (save as MP3 if a WAV is too big). A browser recording is far smaller than that. Clone slots: 1 on the free plan, 5 on Starter, 20 on Pro.
+**With ctio,** from a recording the user already has:
+
+```bash
+ctio voice clone my-voice.m4a --name "My narrator" --tone calm --consent "I confirm this is my own voice, or I have the speaker's explicit permission to clone it."
+```
+
+- **Consent is the user's to give.** Show the user the statement, ask whether it is true for this recording, and add `--consent` only after they confirm. Never add it on your own. The statement must be word for word (`ctio voice` returns it as `consent_statement`); without it ctio stops before uploading anything and prints the exact flag.
+- `--name` is required (up to 60 characters); `--tone` is the label (normal, excited, cheerful, confident, curious, calm, sad, angry, frustrated; default normal).
+- The output carries the new Voice ID (`--format pretty` prints `Cloned "<name>" (<tone>). Voice ID: <id>`). Use it as `voice_tts`.
+- `ctio voice` lists the built-in voices and the user's clones. `ctio voice delete <voice_id> --yes` deletes a clone for good: ask the user first.
+- When all clone slots are used, the clone is refused with a message saying so: delete a clone or upgrade the Voice plan.
+
+Over MCP there is no clone tool: send the user to the browser flow above.
+
+**For an uploaded or ctio clip.** MP3, WAV, M4A, FLAC, OGG or WebM (the website upload also takes Opus), 3 seconds minimum, about 10 seconds of clear speech recommended, up to 512 KB on the free plan and 2 MB on paid plans (save as MP3 if a WAV is too big). A browser recording is far smaller than that. Clone slots: 1 on the free plan, 5 on Starter, 20 on Pro.
 
 **The clip decides the mood.** The tone the user picks on the form is a label for telling clones apart; the clone copies the energy, mood and pace of how the sample was spoken. So:
 
