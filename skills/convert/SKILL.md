@@ -165,6 +165,22 @@ for f in invoices/*.csv; do ctio studio run <converter_id> "$f" "out/$(basename 
 
 Runs are metered on the user's plan; `studio list` is free.
 
+### Extract named fields from a document (Parse)
+
+`ctio parse` (ctio 0.8.0 or later) sends a PDF, scan or photo to Parse and prints the extracted fields as JSON. It waits until the extraction finishes.
+
+```bash
+ctio parse invoice.pdf                                   # free-form: Parse picks the fields
+ctio parse invoice.pdf --schema fields.json -o out.json  # only the fields you list
+ctio parse invoice.pdf --schema-id <schema_id>           # a schema saved in Parse
+ctio parse --id <extraction_id>                          # fetch, or keep waiting for, an earlier extraction
+```
+
+- **Key.** Parse uses its own API key, not the Conversion Tools token. The user creates one at <https://parse.conversiontools.io> and sets `CT_PARSE_TOKEN`; never put the key on the command line yourself. Without a key, use the `parse_*` MCP tools (see the **parse-integration** skill).
+- **Fields file.** A JSON array such as `[{"name": "total", "type": "number"}, {"name": "due_date", "type": "date"}]`, or an object with a `fields` array (the shape Parse exports).
+- **Exit code.** 0 = the data is on stdout. Non-zero = no data: a failed extraction prints the reason on stderr, and when `--timeout` (default 1800 s) runs out ctio prints `ctio parse --id <id>` to fetch it later. ctio 0.7.x and older printed `null` with exit 0 instead of waiting: if you see `null`, ask the user to update ctio.
+- **Cost.** One Parse page per document page; failed extractions are not billed. The same document with the same fields returns the stored result, and no pages are charged.
+
 ### Conversion type names
 
 The `-t` flag accepts the same conversion type names as the MCP `convert_file` tool's `converter` parameter (e.g. `convert.pdf_to_excel` or just `pdf_to_excel` - the `convert.` prefix is auto-prepended). Some converters also answer to a clearer name (`ai_text_to_speech` for `ai_text_to_mp3`, which also writes WAV). Run `ctio list` to browse the live registry and `ctio describe <type>` for a converter's options.
