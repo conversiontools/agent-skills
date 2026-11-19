@@ -35,25 +35,26 @@ The result is a download link valid for about 30 seconds. Fetch it right away; i
 Options:
 
 - `voice_tts`: a built-in voice id, or the Voice ID of a voice the user cloned (usable only from the account that cloned it).
-- `language_tts`: the language the text is written in (38 codes). The voice reads the text as written, so pick a voice that speaks that language.
 - `output_tts`: `mp3` or `wav`. With ctio the output file name picks it.
 
-An unknown voice, language or format is an error that names the value, never a silent fallback.
+**Language.** The voice sets the spoken language; there is no language option. Pick a voice whose language matches the text. 38 languages work and 21 of them have built-in voices; for any other, clone a voice that speaks it (see **Clone the user's own voice**).
+
+An unknown voice or format is an error that names the value, never a silent fallback.
 
 **Choosing a voice.** List the voices before picking one: `ctio voice --format pretty` (built-in voices plus the user's own clones, each with its language), or `get_converter_info` with `convert.ai_text_to_mp3` over MCP (every `voice_tts` value with its label). Match the language first, then the style the user asked for.
 
 ```bash
 # A script, narrated; the output name picks the format
-ctio convert -t ai_text_to_speech script.txt narration.mp3 --option voice_tts=gb_jane_neutral --option language_tts=en
+ctio convert -t ai_text_to_speech script.txt narration.mp3 --option voice_tts=gb_jane_neutral
 
 # A whole document
-ctio convert -t ai_pdf_to_speech handbook.pdf handbook.wav --option voice_tts=fr_marie_neutral --option language_tts=fr
+ctio convert -t ai_pdf_to_speech handbook.pdf handbook.wav --option voice_tts=fr_marie_neutral
 
 # In the user's own cloned voice
 ctio convert -t ai_text_to_speech episode.txt episode.mp3 --option voice_tts=<Voice ID from the dashboard>
 ```
 
-Over MCP, the same job is one `convert_file` call: `converter` `convert.ai_text_to_mp3`, the text file as `file_content`, `file_id` or `url`, and `options` `{"voice_tts": "gb_jane_neutral", "language_tts": "en", "output_tts": "mp3"}`.
+Over MCP, the same job is one `convert_file` call: `converter` `convert.ai_text_to_mp3`, the text file as `file_content`, `file_id` or `url`, and `options` `{"voice_tts": "gb_jane_neutral", "output_tts": "mp3"}`.
 
 **The audio.** Spoken-word loudness (about -16 LUFS), 24 kHz mono, ready to drop into a video or podcast without a loudness pass.
 
