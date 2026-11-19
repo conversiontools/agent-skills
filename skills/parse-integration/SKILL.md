@@ -17,7 +17,7 @@ Two ways to use it, and this skill covers both.
 - **Run an extraction right now** with the `parse_*` MCP tools bundled in this plugin.
 - **Build an integration** in the user's own codebase against the HTTP API.
 
-With a shell, the ctio CLI installed and a Parse key in `CT_PARSE_TOKEN`, `ctio parse <file> --schema fields.json` runs an extraction in one command and waits for the result (see the ctio section of the **convert** skill).
+With a shell, the ctio CLI installed and the user's Parse key saved with `ctio auth login --parse`, `ctio parse <file> --schema fields.json` runs an extraction in one command and waits for the result (see the ctio section of the **convert** skill).
 
 ## The one rule that decides whether an integration works
 
