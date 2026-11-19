@@ -313,7 +313,7 @@ curl -sL "<download_url>" -o data.csv
 ### Larger files (and the better choice for most local files)
 
 1. Call `conversiontools:request_upload_url` with the filename to get a one-time upload URL and `file_id`
-2. Upload the raw bytes within 5 minutes: `curl -X PUT --upload-file ./orders.xml "<upload_url>"`
+2. Upload the raw bytes within 5 minutes with a PUT to the returned `upload_url`, which is always `https://api.conversiontools.io/v1/upload-sessions/SESSION_ID`: `curl -X PUT --upload-file ./orders.xml https://api.conversiontools.io/v1/upload-sessions/SESSION_ID`
 3. Call `conversiontools:convert_file` with the `file_id` instead of `file_content`
 4. Download the result from the returned `download_url` (or poll `get_download_url` if `status` is `running`)
 
